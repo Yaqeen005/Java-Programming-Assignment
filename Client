@@ -1,0 +1,111 @@
+import java.net.*;
+
+import java.io.*;
+
+import java.util.Scanner;
+
+public class BillingClient extends Thread {
+
+    public void run() {
+
+        try {
+
+           
+
+            Scanner sc = new Scanner(System.in);
+
+            System.out.print("Enter Patient ID: ");
+
+            String patientId = sc.nextLine();
+
+            System.out.print("Enter Visit Date (YYYY-MM-DD): ");
+
+            String visitDate = sc.nextLine();
+
+            System.out.print("Enter Patient Type (Inpatient / Outpatient / Emergency): ");
+
+            String patientType = sc.nextLine();
+
+            System.out.print("Enter Service Taken: ");
+
+            String serviceTaken = sc.nextLine();
+
+           
+
+            Socket socket = new Socket("localhost", 5600);
+
+           
+
+            DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+
+            DataInputStream in = new DataInputStream(socket.getInputStream());
+
+           
+
+            out.writeUTF(patientId);
+
+            out.writeUTF(visitDate);
+
+            out.writeUTF(patientType);
+
+            out.writeUTF(serviceTaken);
+
+           
+
+            String insurancePlan = in.readUTF();
+
+            double serviceAmount = in.readDouble();
+
+            double discount = in.readDouble();
+
+            double extraCharge = in.readDouble();
+
+            double finalBill = in.readDouble();
+
+           
+
+            System.out.println("\n===== Patient Bill =====");
+
+            System.out.println("Patient ID       : " + patientId);
+
+            System.out.println("Visit Date       : " + visitDate);
+
+            System.out.println("Patient Type     : " + patientType);
+
+            System.out.println("Service Taken    : " + serviceTaken);
+
+            System.out.println("Insurance Plan   : " + insurancePlan);
+
+            System.out.println("Service Amount   : " + serviceAmount);
+
+            System.out.println("Discount         : " + (discount * 100) + "%");
+
+            System.out.println("Extra Charge     : " + extraCharge);
+
+            System.out.println("Final Bill Amount: " + finalBill);
+
+            System.out.println("========================");
+
+          
+
+            socket.close();
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+        }
+
+    }
+
+  
+
+    public static void main(String[] args) {
+
+        BillingClient client = new BillingClient();
+
+        client.start();
+    }
+
+}
+ 
