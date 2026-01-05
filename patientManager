@@ -1,0 +1,106 @@
+import java.util.ArrayList;
+
+import java.util.Scanner;
+
+public class PatientManager {
+
+    public static void main(String[] args) {
+
+      
+
+        ArrayList<String> patients = new ArrayList<>();
+
+        Scanner sc = new Scanner(System.in);
+
+        int choice;
+
+        do {
+
+            System.out.println("\n===== Patient Management Menu =====");
+
+            System.out.println("1. Add a patient");
+
+            System.out.println("2. Remove a patient");
+
+            System.out.println("3. Display all patients");
+
+            System.out.println("4. Exit");
+
+            System.out.print("Enter your choice: ");
+
+            choice = sc.nextInt();
+
+            sc.nextLine(); 
+
+            switch (choice) {
+
+                case 1:
+
+                    System.out.print("Enter patient name to add: ");
+
+                    String PatientName = sc.nextLine();
+
+                    patients.add(PatientName);
+
+                    System.out.println(PatientName + " has been added.");
+
+                    break;
+
+                case 2:
+
+                    System.out.print("Enter patient name to remove: ");
+
+                    String removePatient = sc.nextLine();
+
+                    if(patients.remove(removePatient)) {
+
+                        System.out.println(removePatient + " has been removed.");
+
+                    } else {
+
+                        System.out.println(removePatient + " not found in the list.");
+
+                    }
+
+                    break;
+
+                case 3:
+
+                    System.out.println("List of patients:");
+
+                    if(patients.isEmpty()) {
+
+                        System.out.println("No patients in the list.");
+
+                    } else {
+
+                        for(String patient : patients) {
+
+                            System.out.println("patient:" + patient);
+
+                        }
+
+                    }
+
+                    break;
+
+                case 4:
+
+                    System.out.println("Exiting program. Goodbye!");
+
+                    break;
+
+                default:
+
+                    System.out.println("Invalid choice! Try again.");
+
+            }
+
+        } while(choice != 4);
+
+        sc.close();
+
+    }
+
+}
+ 
