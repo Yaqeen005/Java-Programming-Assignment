@@ -1,0 +1,165 @@
+import java.net.*;
+
+import java.io.*;
+
+import java.sql.*;
+
+public class BillingServer extends Thread {
+
+    private Socket socket;
+
+    
+
+    public BillingServer(Socket socket) {
+
+        this.socket = socket;
+
+    }
+
+   
+
+    public void run() {
+
+        try {
+
+        
+            DataInputStream in = new DataInputStream(socket.getInputStream());
+
+            DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+
+            
+
+            String patientId = in.readUTF();
+
+            String visitDate = in.readUTF();
+
+            String patientType = in.readUTF();
+
+            String serviceTaken = in.readUTF();
+
+          
+
+            Connection con = DriverManager.getConnection(
+
+                "jdbc:derby://localhost:1527/PatientBilling", "ap", "ap");
+
+           
+
+            String insurancePlan = "Basic";
+
+            PreparedStatement ps = con.prepareStatement(
+
+                "SELECT INSURANCE_PLAN FROM PATIENT WHERE ID = ?");
+
+            ps.setString(1, patientId);
+
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+
+                insurancePlan = rs.getString("INSURANCE_PLAN");
+
+            }
+
+            
+
+            double serviceAmount = 50;
+
+            double discount = 0;
+
+            double extraCharge = 0;
+
+            if (insurancePlan.equalsIgnoreCase("Premium"))
+
+                discount = 0.30;
+
+            else if (insurancePlan.equalsIgnoreCase("Standard"))
+
+                discount = 0.20;
+
+            else
+
+                discount = 0.10;
+
+            if (patientType.equalsIgnoreCase("Emergency"))
+
+                extraCharge = 20;
+
+            else if (patientType.equalsIgnoreCase("Inpatient"))
+
+                extraCharge = 10;
+
+            double finalBill =
+
+                    (serviceAmount - (serviceAmount * discount)) + extraCharge;
+
+            
+
+            PreparedStatement ps2 = con.prepareStatement(
+
+                "INSERT INTO PATIENTBILL VALUES (?, ?, ?)");
+
+            ps2.setString(1, patientId);
+
+            ps2.setString(2, visitDate);
+
+            ps2.setDouble(3, finalBill);
+
+            ps2.executeUpdate();
+
+           
+
+            out.writeUTF(insurancePlan);
+
+            out.writeDouble(serviceAmount);
+
+            out.writeDouble(discount);
+
+            out.writeDouble(extraCharge);
+
+            out.writeDouble(finalBill);
+
+           
+
+            con.close();
+
+            socket.close();
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+        }
+
+    }
+
+    
+
+    public static void main(String[] args) {
+
+        try {
+
+            ServerSocket serverSocket = new ServerSocket(5600);
+
+            System.out.println("Billing Server is running...");
+
+            while (true) {
+
+                Socket socket = serverSocket.accept();
+
+                BillingServer serverThread = new BillingServer(socket);
+
+                serverThread.start();
+
+            }
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+        }
+
+    }
+
+}
+ 
